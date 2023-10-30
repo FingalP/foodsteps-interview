@@ -32,20 +32,57 @@ interface User {
   company: Company;
 }
 
+interface Post {
+  id: number;
+  userId: number;
+  body: string;
+}
+
+interface UserWithPost {
+  user: User;
+  post: Post | undefined;
+}
+
 function App() {
-  const [usersData, setUsersData] = useState<User[]>([]);
+  const [usersData, setUsersData] = useState<UserWithPost[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
-    fetchUsersData();
+    fetchAndCombineUsersAndPostsData();
   }, [searchTerm]);
 
-  function fetchUsersData() {
-    fetch(`https://jsonplaceholder.typicode.com/users`)
-      .then((response) => response.json())
-      .then((data) => data.filter((user: User) => user.name.toLowerCase().includes(searchTerm.toLowerCase())))
-      .then((data) => setUsersData(data))
-      .catch((error) => console.error(error));
+  async function fetchUsersData(): Promise<User[]> {
+    try {
+      const response = await fetch(`https://jsonplaceholder.typicode.com/users`);
+      const data = await response.json();
+      return data.filter((user: User) => user.name.toLowerCase().includes(searchTerm.toLowerCase()));
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  }
+
+  async function fetchUsersPostsData(userIds: number[]): Promise<Post[]> {
+    try {
+      const response = await fetch(`https://jsonplaceholder.typicode.com/posts?${userIds.map((userId) => `userId=${userId}`).join('&')}`);
+      const data: Post[] = await response.json();
+      return userIds.map((userId) => data.filter(post => post.userId === userId).reduce((postWithHighestId, post) => postWithHighestId.id < post.id ? post : postWithHighestId));
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  }
+
+  async function fetchAndCombineUsersAndPostsData() {
+    try {
+      const usersData = await fetchUsersData();
+      const usersPostsData = await fetchUsersPostsData(usersData.map(user => user.id));
+      const combinedData = usersData.map((userData) => ({
+        user: userData,
+        post: usersPostsData.find((userPostsData) => userPostsData.userId === userData.id),
+      }));
+      setUsersData(combinedData);
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   function handleSearch(event: FormEvent<HTMLFormElement>) {
@@ -64,9 +101,9 @@ function App() {
         </form>
         <div>
           {usersData.map((user) => (
-            <div key={user.id}>
-              <h2>{user.name}</h2>
-              <p>{user.username}</p>
+            <div key={user.user.id}>
+              <h2>{user.user.name}</h2>
+              <p>{user.post?.body}</p>
             </div>
           ))}
         </div>
