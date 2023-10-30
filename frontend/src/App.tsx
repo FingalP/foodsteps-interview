@@ -43,6 +43,7 @@ function App() {
   function fetchUsersData() {
     fetch(`https://jsonplaceholder.typicode.com/users`)
       .then((response) => response.json())
+      .then((data) => data.filter((user: User) => user.name.toLowerCase().includes(searchTerm.toLowerCase())))
       .then((data) => setUsersData(data))
       .catch((error) => console.error(error));
   }
