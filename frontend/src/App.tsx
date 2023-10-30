@@ -35,6 +35,7 @@ interface User {
 interface Post {
   id: number;
   userId: number;
+  title: string;
   body: string;
 }
 
@@ -103,6 +104,7 @@ function App() {
           {usersData.map((user) => (
             <div key={user.user.id}>
               <h2>{user.user.name}</h2>
+              <h3>{user.post?.title}</h3>
               <p>{user.post?.body}</p>
             </div>
           ))}
