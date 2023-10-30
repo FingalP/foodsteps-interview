@@ -1,5 +1,4 @@
-import React, { useState, useEffect, FormEvent } from "react";
-import logo from "./logo.svg";
+import React, { useState, useEffect } from "react";
 import "./App.css";
 
 interface RawCoordinates {
@@ -45,8 +44,9 @@ interface UserWithPost {
 }
 
 function App() {
-  const [combinedData, setUsersData] = useState<UserWithPost[]>([]);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [usersWithPostsData, setUsersWithPostsData] = useState<UserWithPost[]>([]);
+  const [searchTerm, setSearchTerm] = useState<string>('');
+  const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
     fetchAndCombineUsersAndPostsData();
@@ -54,11 +54,14 @@ function App() {
 
   async function fetchUsersData(): Promise<User[]> {
     try {
-      const response = await fetch(`https://jsonplaceholder.typicode.com/users`);
+      const response = await fetch(`https://jsonplaceholder.typicode.com/users?name_like=${searchTerm}`);
       const data = await response.json();
-      return data.filter((user: User) => user.name.toLowerCase().includes(searchTerm.toLowerCase()));
+      if (!Array.isArray(data)) {
+        throw new Error();
+      }
+      return data;
     } catch (error) {
-      return Promise.reject(error);
+      throw new Error('Failed to fetch user data');
     }
   }
 
@@ -66,9 +69,13 @@ function App() {
     try {
       const response = await fetch(`https://jsonplaceholder.typicode.com/posts?${userIds.map((userId) => `userId=${userId}`).join('&')}`);
       const data: Post[] = await response.json();
+      if (!Array.isArray(data)) {
+        throw new Error();
+      }
+
       return userIds.map((userId) => data.filter(post => post.userId === userId).reduce((postWithHighestId, post) => postWithHighestId.id < post.id ? post : postWithHighestId));
     } catch (error) {
-      return Promise.reject(error);
+      throw new Error('Failed to fetch user posts data');
     }
   }
 
@@ -76,17 +83,22 @@ function App() {
     try {
       const usersData = await fetchUsersData();
       const usersPostsData = await fetchUsersPostsData(usersData.map(user => user.id));
-      const combinedData = usersData.map((userData) => ({
-        user: userData,
-        post: usersPostsData.find((userPostsData) => userPostsData.userId === userData.id),
+      const combinedData = usersData.map((userWithPost) => ({
+        user: userWithPost,
+        post: usersPostsData.find((userPostsData) => userPostsData.userId === userWithPost.id),
       }));
-      setUsersData(combinedData);
+      setUsersWithPostsData(combinedData);
+      setError(null);
     } catch (error) {
-      console.error(error);
+      if (error instanceof Error) {
+        setError(error);
+      } else {
+        console.error(error);
+      }
     }
   }
 
-  function handleSearch(event: FormEvent<HTMLFormElement>) {
+  function handleSearch(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
     const searchTerm = formData.get('searchTerm') as string;
@@ -101,21 +113,21 @@ function App() {
           <button type="submit">Search</button>
         </form>
         <div>
-          {combinedData.map((userWithPost) => (
-            <div key={userWithPost.user.id}>
-              <h2>{userWithPost.user.name}</h2>
-              {userWithPost.post &&
+          {usersWithPostsData.map(({ user, post }) => (
+            <div key={user.id}>
+              <h2>{user.name}</h2>
+              {post ? (
                 <div>
-                  <h3>{userWithPost.post.title}</h3>
-                  <p>{userWithPost.post.body}</p>
+                  <h3>{post.title}</h3>
+                  <p>{post.body}</p>
                 </div>
-              }
-              {!userWithPost.post &&
+              ) : (
                 <h3>No post found</h3>
-              }
+              )}
             </div>
           ))}
         </div>
+        {error && <div className="error">{error.message}</div>}
       </header>
     </div>
   );
