@@ -104,8 +104,13 @@ function App() {
           {usersData.map((user) => (
             <div key={user.user.id}>
               <h2>{user.user.name}</h2>
-              <h3>{user.post?.title}</h3>
-              <p>{user.post?.body}</p>
+              {user.post &&
+                <h3>{user.post.title}</h3> &&
+                <p>{user.post.body}</p>
+              }
+              {!user.post &&
+                <h3>No post found</h3>
+              }
             </div>
           ))}
         </div>
