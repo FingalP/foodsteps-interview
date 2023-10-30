@@ -50,18 +50,16 @@ function App() {
 
   function handleSearch(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    fetchUsersData();
+    const formData = new FormData(event.currentTarget);
+    const searchTerm = formData.get('searchTerm') as string;
+    setSearchTerm(searchTerm);
   }
 
   return (
     <div className="App">
       <header className="App-header">
         <form onSubmit={handleSearch}>
-          <input
-            type="text"
-            value={searchTerm}
-            onChange={(event) => setSearchTerm(event.target.value)}
-          />
+          <input type="text" name="searchTerm" />
           <button type="submit">Search</button>
         </form>
         <div>
