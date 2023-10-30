@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "foodsteps-interview"
+version = "0.1.0"
+description = ""
+authors = ["fingalplumpton <fingalplumpton@gmail.com>"]
+readme = "README.md"
+packages = [{include = "foodsteps_interview"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+
+
+[tool.poetry.group.dev.dependencies]
+ipython = "^8.16.1"
+pytest = "^7.4.3"
+black = "^23.10.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
