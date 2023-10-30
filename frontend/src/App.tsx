@@ -45,7 +45,7 @@ interface UserWithPost {
 }
 
 function App() {
-  const [usersData, setUsersData] = useState<UserWithPost[]>([]);
+  const [combinedData, setUsersData] = useState<UserWithPost[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
@@ -101,14 +101,16 @@ function App() {
           <button type="submit">Search</button>
         </form>
         <div>
-          {usersData.map((user) => (
-            <div key={user.user.id}>
-              <h2>{user.user.name}</h2>
-              {user.post &&
-                <h3>{user.post.title}</h3> &&
-                <p>{user.post.body}</p>
+          {combinedData.map((userWithPost) => (
+            <div key={userWithPost.user.id}>
+              <h2>{userWithPost.user.name}</h2>
+              {userWithPost.post &&
+                <div>
+                  <h3>{userWithPost.post.title}</h3>
+                  <p>{userWithPost.post.body}</p>
+                </div>
               }
-              {!user.post &&
+              {!userWithPost.post &&
                 <h3>No post found</h3>
               }
             </div>
