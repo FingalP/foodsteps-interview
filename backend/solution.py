@@ -12,27 +12,7 @@ def make_minimal(word):
     Returns:
         str: The processed string.
     """
-    for char in [
-        "'",
-        '"',
-        " ",
-        "(",
-        ")",
-        "-",
-        "_",
-        ",",
-        ".",
-        "/",
-        ">",
-        "+",
-        "–",
-        "’",
-        "!",
-        "…",
-        "=",
-    ]:
-        word = word.replace(char, "")
-    return word.strip().lower()
+    return ''.join(char for char in word.lower() if char.isalnum())
 
 
 def split_and_make_minimal(name):
