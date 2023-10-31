@@ -1,47 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "./App.css";
-
-interface RawCoordinates {
-  lat: string;
-  lng: string;
-}
-
-interface Address {
-  street: string;
-  suite: string;
-  city: string;
-  zipcode: string;
-  geo: RawCoordinates;
-}
-
-interface Company {
-  name: string;
-  catchPhrase: string;
-  bs: string;
-}
-
-interface User {
-  id: number;
-  name: string;
-  username: string;
-  email: string;
-  address: Address;
-  phone: string;
-  website: string;
-  company: Company;
-}
-
-interface Post {
-  id: number;
-  userId: number;
-  title: string;
-  body: string;
-}
-
-interface UserWithPost {
-  user: User;
-  post: Post | undefined;
-}
+import { UserWithPost, User, Post } from "./types";
 
 function App() {
   const [usersWithPostsData, setUsersWithPostsData] = useState<UserWithPost[]>([]);
