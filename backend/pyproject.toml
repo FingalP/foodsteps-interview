@@ -11,9 +11,9 @@ python = "^3.11"
 
 
 [tool.poetry.group.dev.dependencies]
-ipython = "^8.16.1"
 pytest = "^7.4.3"
 black = "^23.10.1"
+ipython = "^8.17.2"
 
 [build-system]
 requires = ["poetry-core"]
