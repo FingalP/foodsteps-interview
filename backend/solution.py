@@ -109,7 +109,6 @@ def get_impact_for_ingredient(recipe_row, food_classes):
         recipe_row["Ingredient Name"], food_classes
     )
     if food_class is None:
-        print(recipe_row["Ingredient Name"])
         return None
     return Decimal(food_class["Impact / kg"]) * Decimal(
         recipe_row["Ingredient Weight / kg"]
