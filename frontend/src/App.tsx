@@ -6,6 +6,7 @@ function App() {
   const [usersWithPostsData, setUsersWithPostsData] = useState<UserWithPost[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [error, setError] = useState<Error | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   useEffect(() => {
     fetchAndCombineUsersAndPostsData();
@@ -39,6 +40,7 @@ function App() {
   }
 
   async function fetchAndCombineUsersAndPostsData() {
+    setIsLoading(true);
     try {
       const usersData = await fetchUsersData();
       const usersPostsData = await fetchUsersPostsData(usersData.map(user => user.id));
@@ -48,12 +50,14 @@ function App() {
       }));
       setUsersWithPostsData(combinedData);
       setError(null);
+      setIsLoading(false);
     } catch (error) {
       if (error instanceof Error) {
         setError(error);
       } else {
         console.error(error);
       }
+      setIsLoading(false);
     }
   }
 
@@ -66,28 +70,33 @@ function App() {
 
   return (
     <div className="App">
-      <header className="App-header">
-        <form onSubmit={handleSearch}>
-          <input type="text" name="searchTerm" />
-          <button type="submit">Search</button>
-        </form>
-        <div>
-          {usersWithPostsData.map(({ user, post }) => (
-            <div key={user.id}>
-              <h2>{user.name}</h2>
-              {post ? (
-                <div>
-                  <h3>{post.title}</h3>
-                  <p>{post.body}</p>
-                </div>
-              ) : (
-                <h3>No post found</h3>
-              )}
-            </div>
-          ))}
-        </div>
-        {error && <div className="error">{error.message}</div>}
-      </header>
+            {isLoading ? (
+        <p>Loading...</p> // Display loading message when isLoading is true
+      ) : (
+
+        <header className="App-header">
+          <form onSubmit={handleSearch}>
+            <input type="text" name="searchTerm" />
+            <button type="submit">Search</button>
+          </form>
+          <div>
+            {usersWithPostsData.map(({ user, post }) => (
+              <div key={user.id}>
+                <h2>{user.name}</h2>
+                {post ? (
+                  <div>
+                    <h3>{post.title}</h3>
+                    <p>{post.body}</p>
+                  </div>
+                ) : (
+                  <h3>No post found</h3>
+                )}
+              </div>
+            ))}
+          </div>
+          {error && <div className="error">{error.message}</div>}
+        </header>
+      )}
     </div>
   );
 }
